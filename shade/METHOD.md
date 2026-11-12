@@ -35,9 +35,9 @@ bit counts, so the default SHADE is a χ² test of the median split along each r
 
 1. **Directions.** Generate $R = [r_1, \dots, r_K] \in \mathbb{R}^{d \times K}$ from the seed
    (`np.random.default_rng(seed).standard_normal((d, K))`). $R$ does not need to be stored.
-2. **Bin edges.** For each direction, the empirical quantiles of $\{r_k^\top x : x \in E_{ref}\}$ at levels $j/B$,
+2. **Bin edges.** For each direction, the empirical quantiles of $\lbrace r_k^\top x : x \in E_{ref} \rbrace$ at levels $j/B$,
    $j = 1, \dots, B-1$. For $B = 2$ this is the median.
-3. **Code** of a sample on direction $k$: $c_k(x) = \#\{j : r_k^\top x > e_{k,j}\} \in \{0, \dots, B-1\}$.
+3. **Code** of a sample on direction $k$: $c_k(x) = \lvert \lbrace j : r_k^\top x > e_{k,j} \rbrace \rvert \in \lbrace 0, \dots, B-1 \rbrace$.
 4. **Reference frequencies.** $q_b[k, j]$ is the fraction of $E_{ref}$ with $c_k = j$; it is $\approx 1/B$ by
    construction. The same frequencies are computed for each predicted label, with the same bin edges.
 
@@ -50,12 +50,12 @@ any systematic difference between the reference set and held-out data (Section 3
 
 ### 2.4 Online: scoring a window
 
-**Counts:** $n_w[k, j] = \#\{x \in W : c_k(x) = j\}$, $q_w = n_w / m_w$.
+**Counts:** $n_w[k, j] = \lvert \lbrace x \in W : c_k(x) = j \rbrace \rvert$, $q_w = n_w / m_w$.
 
 **Per-direction statistic** (grouped Anderson–Darling), with the cumulative frequencies
 $F_w[k, j] = \sum_{i \le j} q_w[k, i]$ and $F_b[k, j] = \sum_{i \le j} q_b[k, i]$ at the $B - 1$ bin edges:
 
-$$A^2_k = m_w \sum_{j=1}^{B-1} q_b[k, j]\, \frac{\big(F_w[k,j] - F_b[k,j]\big)^2}{F_b[k,j]\,\big(1 - F_b[k,j]\big) + \varepsilon}, \qquad \varepsilon = 10^{-3}$$
+$$A^2_k = m_w \sum_{j=1}^{B-1} q_b[k, j] \frac{\big(F_w[k,j] - F_b[k,j]\big)^2}{F_b[k,j] \big(1 - F_b[k,j]\big) + \varepsilon}, \qquad \varepsilon = 10^{-3}$$
 
 At each bin edge, the squared gap between the share of the window and the share of the reference below it is divided
 by its variance under no drift, so the tails count as much as the centre.
@@ -64,7 +64,7 @@ by its variance under no drift, so the tails count as much as the centre.
 
 **Default ($B = 2$).** With a single edge at the median, $F_b \approx q_b \approx \frac{1}{2}$ and
 
-$$A^2_k = 2\, m_w \big(p_w[k] - \tfrac{1}{2}\big)^2 = \tfrac{1}{2}\, \chi^2_k$$
+$$A^2_k = 2 m_w \big(p_w[k] - \tfrac{1}{2}\big)^2 = \tfrac{1}{2} \chi^2_k$$
 
 where $p_w[k]$ is the fraction of the window above the median and $\chi^2_k$ is Pearson's χ² on the two bit counts
 (up to $\varepsilon$).

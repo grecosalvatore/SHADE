@@ -82,7 +82,7 @@ that can be compared with `results/`. The steps can also be run one by one:
 | Script | Experiment | Output in `$RESULTS/` | Time* |
 |---|---|---|---|
 | `01_timing.sh` | Time per window on UC01, window sizes 250 to 5000, single thread. Run it alone on the machine | `raw/timing/` | 5 min |
-| `02_detection.sh` | Detection: 10 use cases × window sizes {250, 500, 1000, 2000} × 5 runs; DriftLens and SHADE with $K \in \{64, 128\}$, $B \in \{2, 8\}$ | `raw/detection/` | 11–12 h |
+| `02_detection.sh` | Detection: 10 use cases × window sizes {250, 500, 1000, 2000} × 5 runs; DriftLens and SHADE with $K \in \lbrace 64, 128 \rbrace$, $B \in \lbrace 2, 8 \rbrace$ | `raw/detection/` | 11–12 h |
 | `03_drift_sweep.sh` | Score vs drift percentage (0–100 % in steps of 5 %), window size 1000 | `raw/drift_sweep/` | 2 h |
 | `04_drift_stream.sh` | Streams with sudden, incremental and periodic drift, UC01 and UC06 | `raw/drift_stream/` | 10 min |
 | `05_tables_figures.sh` | Tables and figures | `tables/`, `figures/` | 1 min |
@@ -104,7 +104,7 @@ python experiments/run_detection.py --uc 07 --window-sizes 250 --out-dir results
 `experiments/scripts/get_driftlens.sh` downloads its source into `third_party/` and
 [experiments/baselines.py](experiments/baselines.py) imports it from there.
 
-**Determinism.** Windows and SHADE directions are seeded (run $r$: sampler seeds $1000r + \{0, 1, 2\}$, directions
+**Determinism.** Windows and SHADE directions are seeded (run $r$: sampler seeds $1000r + \lbrace 0, 1, 2 \rbrace$, directions
 seed $r$), so the SHADE results are reproduced exactly. The DriftLens results are reproduced up to numerical precision
 on the use cases with a large training set; on the others (UC02, UC03, UC06, UC07, UC08) scikit-learn fits the PCA of
 DriftLens with a randomized solver, and its thresholds and scores change slightly from one execution to the other
