@@ -1,0 +1,37 @@
+% Required in the preamble:
+%   \usepackage{booktabs}
+%   \usepackage{graphicx}
+%   \usepackage{amsmath}
+%   \usepackage[table]{xcolor}
+%   \definecolor{shadebetter}{HTML}{C6DBEF}
+%   \definecolor{tie}{HTML}{EBEBEB}
+%   \newcommand{\nocol}{\cellcolor{white}}
+%   \newcommand{\method}{SHADE}
+\begin{table}[t!]
+\centering
+\caption{\textbf{Drift severity and score correlation.} Correlation of the drift score to the drift percentage ($m_w=1000$; mean over 5 runs). $\rho_{Q[0-100]}$ and $\rho_{Q[0-20]}$: Spearman correlation between the drift percentage of a window and its score, over windows with 0--100\% and 0--20\% drift (1: the score always increases with the drift). Onset: smallest drift percentage at which the mean score of the windows exceeds the threshold. Better value of each pair in bold}
+\label{tab:drift_sweep}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lcccccc}
+\toprule
+ & \multicolumn{3}{c}{\textbf{DriftLens}} & \multicolumn{3}{c}{\textbf{\method{}}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7}
+\textbf{UC} & $\rho_{Q[0-100]}$ & $\rho_{Q[0-20]}$ & Onset & $\rho_{Q[0-100]}$ & $\rho_{Q[0-20]}$ & Onset \\
+\midrule
+UC01 & \textbf{0.999} & \textbf{0.980} & \textbf{5\%} & \textbf{0.999} & 0.978 & \textbf{5\%} \\
+UC02 & \textbf{0.998} & \textbf{0.961} & \textbf{5\%} & \textbf{0.998} & 0.930 & 10\% \\
+UC03 & \textbf{0.999} & \textbf{0.967} & \textbf{5\%} & 0.998 & 0.944 & 10\% \\
+UC04 & \textbf{0.999} & 0.979 & \textbf{5\%} & \textbf{0.999} & \textbf{0.980} & \textbf{5\%} \\
+UC05 & \textbf{0.999} & \textbf{0.979} & 10\% & \textbf{0.999} & \textbf{0.979} & \textbf{5\%} \\
+UC06 & \textbf{0.999} & \textbf{0.975} & \textbf{5\%} & \textbf{0.999} & 0.959 & 10\% \\
+UC07 & \textbf{0.999} & \textbf{0.980} & \textbf{5\%} & \textbf{0.999} & \textbf{0.980} & \textbf{5\%} \\
+UC08 & \textbf{0.999} & \textbf{0.980} & \textbf{5\%} & 0.998 & 0.943 & 10\% \\
+UC09 & \textbf{0.972} & \textbf{0.658} & \textbf{25\%} & 0.403 & $-$0.012 & 100\% \\
+UC10 & 0.973 & 0.652 & 15\% & \textbf{0.987} & \textbf{0.885} & \textbf{5\%} \\
+\midrule
+\textbf{Mean} & \textbf{0.994} & \textbf{0.911} & -- & 0.938 & 0.857 & -- \\
+\textbf{Median} & \textbf{0.999} & \textbf{0.977} & \textbf{5\%} & 0.998 & 0.952 & 7.5\% \\
+\bottomrule
+\end{tabular}
+\end{table}

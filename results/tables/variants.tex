@@ -1,0 +1,27 @@
+% Required in the preamble:
+%   \usepackage{booktabs}
+%   \usepackage{graphicx}
+%   \usepackage{amsmath}
+%   \usepackage[table]{xcolor}
+%   \definecolor{shadebetter}{HTML}{C6DBEF}
+%   \definecolor{tie}{HTML}{EBEBEB}
+%   \newcommand{\nocol}{\cellcolor{white}}
+%   \newcommand{\method}{SHADE}
+\begin{table*}[htbp!]
+\centering
+\caption{\textbf{Ablation study and efficiency evaluation.} Comparison of \method variants with $K$ random directions and $B$ bins per direction, mean over all use cases and window sizes (5 runs each). Seed std: standard deviation of AUC@5\% over the runs of each use case and window size, averaged. Stored: reference state, mean over use cases. Best \method{} value per column in bold; DriftLens is reported as reference}
+\label{tab:variants_new}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{Variant} & AUC@5\% & AUC@10\% & Acc.@0\% & H$_{\text{DD}}$ & Seed std & ms/window & Stored (kB) \\
+\midrule
+$K{=}64,\ B{=}2$ (default) & 0.841 & 0.923 & 0.918 & 0.683 & 0.027 & \textbf{2.48} & \textbf{7.1} \\
+$K{=}64,\ B{=}8$ & 0.845 & 0.929 & \textbf{0.935} & 0.691 & 0.024 & 2.98 & 29.5 \\
+$K{=}128,\ B{=}2$ & 0.847 & 0.926 & 0.887 & \textbf{0.722} & 0.017 & 4.27 & 14.2 \\
+$K{=}128,\ B{=}8$ & \textbf{0.851} & \textbf{0.933} & 0.896 & \textbf{0.722} & \textbf{0.016} & 5.39 & 59.1 \\
+\midrule
+DriftLens & 0.868 & 0.944 & 0.953 & 0.730 & 0.005 & 16.40 & 2048.4 \\
+\bottomrule
+\end{tabular}
+\end{table*}

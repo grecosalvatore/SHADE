@@ -1,0 +1,24 @@
+# Embeddings (downloaded with data/download.sh)
+data/embeddings/
+data/*.zip
+
+# DriftLens source (downloaded with experiments/scripts/get_driftlens.sh)
+third_party/
+
+# Recomputed results and logs
+results_*/
+results/logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
