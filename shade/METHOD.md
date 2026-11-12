@@ -98,92 +98,42 @@ gives the same scores.
 
 ## 3. Interpreting the score
 
-- **Range:** $S \geq 0$; 0 when every cumulative frequency matches the reference. For $B = 2$ the maximum is
-  $m_w / 2$ (every sample on the same side of the median on every direction).
-- **Without drift, for i.i.d. windows from the reference distribution:** each $A^2_k$ has expectation
-  $\sum_{j} q_b[k, j] = (B-1)/B$, because $\mathbb{E}[(F_w - F_b)^2] = F_b(1-F_b)/m_w$ at each bin edge; that is
-  $\frac{1}{2}$ for $B = 2$, for any window size.
-- **In practice the drift-free scores differ from this value,** for two reasons: the reference is the training set,
-  whose embeddings can differ systematically from held-out data (the classifier was fitted on them), which adds a
-  term that grows with $m_w$; and class-balanced windows have a lower variance than i.i.d. windows. Thresholds of the
-  default configuration measured in the experiments of the paper (99th percentile, mean over 5 runs):
+The score is non-negative, and 0 when every cumulative frequency of the window matches the reference; for $B = 2$ its
+maximum is $m_w / 2$. Its distribution on drift-free windows depends on the data (the reference is the training set of
+the classifier, and the windows are class-balanced), so the threshold is estimated empirically on drift-free windows
+rather than taken from the χ² distribution.
 
-  | UC | 01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 | 09 | 10 |
-  |---|---|---|---|---|---|---|---|---|---|---|
-  | $m_w = 250$ | 0.45 | 5.15 | 3.98 | 0.31 | 0.34 | 0.48 | 0.36 | 0.29 | 2.92 | 0.98 |
-  | $m_w = 1000$ | 0.52 | 17.79 | 13.47 | 0.42 | 0.53 | 0.80 | 0.52 | 0.41 | 7.99 | 2.18 |
-
-  This is why the threshold is estimated empirically rather than taken from the χ² distribution.
-- **The threshold set must be representative of the drift-free monitored data.** When the two differ, the false
-  alarms rise (in UC10 the accuracy on drift-free windows drops to 0.35 at $m_w = 2000$) or the threshold is too
-  high and small drifts are missed.
-
-## 4. Why this design
+## 4. Design choices
 
 | Choice | Justification |
 |---|---|
-| Random projections | Sharp Cramér–Wold theorem (Cuesta-Albertos, Fraiman & Ransford 2007): if two distributions (with moments satisfying Carleman's condition, e.g. bounded embeddings) differ, their projections differ on almost every direction. $K$ reduces the variance of the score. |
+| Random projections | Sharp Cramér–Wold theorem (Cuesta-Albertos, Fraiman & Ransford 2007): if two distributions (with moments satisfying Carleman's condition, e.g. bounded embeddings) differ, their projections differ on almost every direction. |
 | Bin edges at the reference quantiles | Equiprobable bins are the standard choice for binned goodness-of-fit tests: every bin and direction is equally informative, whatever the scale of the projection. |
-| $B = 2$ by default | The median bit tests whether a projected median moved. Changes of spread or shape that keep the medians are invisible to it; $B > 2$ sees them, at a higher cost (Section 5). |
 | Anderson–Darling instead of χ² | A shift moves every cumulative frequency in the same direction; Anderson–Darling accumulates these deviations, while χ² compares the bins independently and ignores their order. The two are identical for $B = 2$. |
-| Mean over directions, not maximum | For Gaussian $r$, $r^\top \delta \sim \mathcal{N}(0, \lVert\delta\rVert^2)$: a change is spread over all directions (a dense alternative), where sum-type tests (Chen & Qin 2010) are more powerful than max-type tests (Cai, Liu & Xia 2014). |
-| No whitening | Inverting an estimated covariance hurts power in high dimension (Bai & Saranadasa 1996). |
-| Empirical threshold | Accounts for the correlation between directions, unlike a Bonferroni correction over the directions (Rabanser et al. 2019), and for the offset of the training reference (Section 3). |
 
-**Relation to SimHash (Charikar 2002).** For $B = 2$, the code is the sign of a random projection offset by the
-reference median, i.e. a median-centred SimHash bit; for $B > 2$ it is a multi-bit quantized code. The detection
-principle is not locality-sensitive hashing (no fingerprints are compared): it is a sliced two-sample test on the code
-frequencies.
+## 5. Parameters
 
-## 5. Configurations
+| Parameter | Meaning | Default |
+|---|---|---|
+| $K$ (`n_directions`) | number of random directions | 64 |
+| $B$ (`n_bins`) | equiprobable bins per direction: $B = 2$ splits at the median (1 bit), $B = 8$ at the octiles (3 bits) | 2 |
+| `seed` | seed of the random directions | 0 |
+| `eps` | constant $\varepsilon$ in the denominator of the statistic | $10^{-3}$ |
 
-The method has two parameters, $K$ and $B$. All configurations use the same code and the same statistic.
-
-| | **Default** ($K = 64$, $B = 2$) | $K = 64$, $B = 8$ | $K = 128$, $B = 2$ | $K = 128$, $B = 8$ |
-|---|---|---|---|---|
-| Code per direction | 1 bit (median) | 3 bits (octiles) | 1 bit | 3 bits |
-| Detects | shifts of the projected medians | changes at the octiles (location, spread, shape) | as default | as $B = 8$ |
-| AUC@5% | 0.841 | 0.845 | 0.847 | 0.851 |
-| H_DD | 0.683 | 0.691 | 0.722 | 0.722 |
-| Acc@0% (target 0.99) | 0.918 | 0.935 | 0.887 | 0.896 |
-| Std of AUC@5% across seeds | 0.027 | 0.024 | 0.017 | 0.016 |
-| ms per window | 2.48 | 2.98 | 4.27 | 5.39 |
-| Stored state | 7.1 kB | 29.5 kB | 14.2 kB | 59.1 kB |
-
-Means over the 10 use cases and 4 window sizes of the paper, 5 runs each
-([results/tables/variants.md](../results/tables/variants.md)).
-
-**Why $K = 64$, $B = 2$ is the default:** the four configurations are within 0.01 AUC of each other, and the default
-is the cheapest. $K = 128$ lowers the dependence on the random seed and raises H_DD, at 1.7× the time and with more
-false alarms. $B = 8$ helps where drift changes the spread or the tails (UC06: AUC@5% 0.89 → 0.95 at $m_w = 2000$) and
-lowers the false alarms, but hurts elsewhere (UC10: 0.91 → 0.82) and costs 4× the memory.
+The paper evaluates $K \in \lbrace 64, 128 \rbrace$ and $B \in \lbrace 2, 8 \rbrace$:
+[results/tables/variants.md](../results/tables/variants.md) ([.tex](../results/tables/variants.tex)).
 
 ## 6. Cost
 
-**Per sample:** $d \cdot K$ multiply-adds for the projection (49k for $d = 768$, $K = 64$), $K \log_2 B$ comparisons
-(one per direction for $B = 2$), $K$ counter increments. **Per window:** $O(K \cdot B)$ for the score; no PCA, no
-covariance matrix, no matrix square root.
+**Per sample:** $d \cdot K$ multiply-adds for the projection, $K \log_2 B$ comparisons and $K$ counter increments.
+**Per window:** $O(K \cdot B)$ for the score.
 
-**Stored state** (`SHADE.state_nbytes()`; $R$ is generated from the seed): $K (B - 1)$ bin edges, plus $K \cdot B$
-frequencies for the whole reference and for each label. For the default configuration, against DriftLens (mean vectors,
-covariance matrices and PCA models):
+**Stored state** (`SHADE.state_nbytes()`): $K (B - 1)$ bin edges, plus $K \cdot B$ reference frequencies for the whole
+reference and for each label. The directions $R$ are generated from the seed; if they cannot be generated on the
+device, they add $d \cdot K$ values.
 
-| UC | 01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 | 09 | 10 | mean |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| SHADE (kB) | 4.6 | 6.7 | 7.7 | 7.7 | 9.5 | 6.4 | 10.5 | 11.5 | 3.3 | 3.3 | 7.1 |
-| DriftLens (kB) | 2647 | 3672 | 4184 | 2099 | 2875 | 1069 | 1409 | 1494 | 814 | 221 | 2048 |
-
-If $R$ cannot be generated on the device, it adds $d \cdot K$ values (197 kB in float32 for $d = 768$, $K = 64$).
-Storing the frequencies as float32 or as integer counts would halve the figures of SHADE.
-
-**Time per window** (UC01, $d = 768$, single thread, global and per-label scores, mean over 5 runs;
-[results/figures/timing.pdf](../results/figures/timing.pdf)):
-
-| $m_w$ | 250 | 1000 | 2000 | 5000 |
-|---|---|---|---|---|
-| DriftLens | 12.3 ms | 22.0 ms | 35.1 ms | 72.1 ms |
-| SHADE | 1.0 ms | 3.7 ms | 7.1 ms | 17.7 ms |
-| Speed-up | 12.0× | 6.0× | 4.9× | 4.1× |
+Measured stored state and time per window: [results/tables/variants.md](../results/tables/variants.md) (columns
+Stored and ms/window) and [results/figures/timing.pdf](../results/figures/timing.pdf) (time per window vs window size).
 
 ## 7. Usage
 
@@ -207,8 +157,3 @@ A complete example, with the estimation of the threshold, is in
 - T. W. Anderson, D. A. Darling. *Asymptotic theory of certain "goodness of fit" criteria based on stochastic processes.* Ann. Math. Stat., 1952.
 - V. Choulakian, R. A. Lockhart, M. A. Stephens. *Cramér–von Mises statistics for discrete distributions.* Canadian Journal of Statistics 22(1), 1994.
 - J. A. Cuesta-Albertos, R. Fraiman, T. Ransford. *A sharp form of the Cramér–Wold theorem.* J. Theoret. Probab. 20(2), 2007.
-- Z. Bai, H. Saranadasa. *Effect of high dimension: by an example of a two sample problem.* Statistica Sinica 6, 1996.
-- S. X. Chen, Y.-L. Qin. *A two-sample test for high-dimensional data with applications to gene-set testing.* Ann. Statist., 2010.
-- T. T. Cai, W. Liu, Y. Xia. *Two-sample test of high dimensional means under dependence.* JRSS-B, 2014.
-- S. Rabanser, S. Günnemann, Z. Lipton. *Failing Loudly: An empirical study of methods for detecting dataset shift.* NeurIPS 2019.
-- DriftLens: *Unsupervised Concept Drift Detection From Deep Learning Representations in Real-Time.* IEEE Transactions on Knowledge and Data Engineering 37(10), 2025.
