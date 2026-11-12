@@ -121,7 +121,7 @@ rather than taken from the χ² distribution.
 | `eps` | constant $\varepsilon$ in the denominator of the statistic | $10^{-3}$ |
 
 The paper evaluates $K \in \lbrace 64, 128 \rbrace$ and $B \in \lbrace 2, 8 \rbrace$:
-[results/tables/variants.md](../results/tables/variants.md) ([.tex](../results/tables/variants.tex)).
+[results/tables/variants.md](../results/tables/variants.md).
 
 ## 6. Cost
 

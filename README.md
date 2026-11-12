@@ -17,7 +17,7 @@ This repository contains:
 | [shade/](shade/) | the method, as a small package that only needs NumPy |
 | [examples/](examples/) | a quickstart on synthetic embeddings |
 | [experiments/](experiments/) | the code of the experiments of the paper, with DriftLens as the baseline |
-| [results/](results/) | the results of the paper: raw results, tables (LaTeX and Markdown) and figures |
+| [results/](results/) | the results of the paper: raw results, tables and figures |
 | [data/](data/) | the download script and the description of the embeddings |
 
 ## Installation
@@ -64,7 +64,7 @@ The raw results of every experiment are in [results/raw/](results/raw/). The tab
 built from them, without the embeddings:
 
 ```bash
-python experiments/make_tables.py     # results/tables/*.tex and *.md
+python experiments/make_tables.py     # results/tables/
 python experiments/make_figures.py    # results/figures/*.pdf
 ```
 
@@ -141,26 +141,12 @@ Average over the 10 use cases and the window sizes 250, 500, 1000 and 2000 (38 u
 
 | Paper | File | Raw results |
 |---|---|---|
-| Table: drift detection performance per use case and window size | [results/tables/main.tex](results/tables/main.tex) ([.md](results/tables/main.md)) | `results/raw/detection/` |
-| Table: SHADE variants ($K$, $B$) and efficiency | [results/tables/variants.tex](results/tables/variants.tex) ([.md](results/tables/variants.md)) | `results/raw/detection/` |
-| Table: drift severity and score correlation | [results/tables/drift_severity.tex](results/tables/drift_severity.tex) ([.md](results/tables/drift_severity.md)) | `results/raw/drift_sweep/` |
+| Table: drift detection performance per use case and window size | [results/tables/main.md](results/tables/main.md) | `results/raw/detection/` |
+| Table: SHADE variants ($K$, $B$) and efficiency | [results/tables/variants.md](results/tables/variants.md) | `results/raw/detection/` |
+| Table: drift severity and score correlation | [results/tables/drift_severity.md](results/tables/drift_severity.md) | `results/raw/drift_sweep/` |
 | Figure: execution time per window vs window size | [results/figures/timing.pdf](results/figures/timing.pdf) | `results/raw/timing/` |
 | Figure: scores over a data stream, global | [results/figures/drift_stream.pdf](results/figures/drift_stream.pdf) | `results/raw/drift_stream/` |
 | Figure: scores over a data stream, per label | [results/figures/drift_stream_labels.pdf](results/figures/drift_stream_labels.pdf) | `results/raw/drift_stream/` |
-
-The LaTeX tables need the following in the preamble (it is also written as a comment at the top of each `.tex`
-file):
-
-```latex
-\usepackage{booktabs}
-\usepackage{graphicx}
-\usepackage{amsmath}
-\usepackage[table]{xcolor}
-\definecolor{shadebetter}{HTML}{C6DBEF}   % rows where SHADE has the higher H_DD
-\definecolor{tie}{HTML}{EBEBEB}           % rows where the two H_DD are equal
-\newcommand{\nocol}{\cellcolor{white}}    % keeps the first two cells of a highlighted row white
-\newcommand{\method}{SHADE}
-```
 
 ## Citation
 
