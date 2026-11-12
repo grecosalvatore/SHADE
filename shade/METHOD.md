@@ -7,7 +7,7 @@ the stored state is a few kilobytes, and a window is summarized by counters that
 
 The implementation is the class `SHADE` in [detector.py](detector.py).
 
-## 1. In one paragraph
+## 1. Framework Overview
 
 Every embedding is projected onto $K$ random directions. On each direction, the reference projections are split into
 $B$ equiprobable bins at their quantiles, and each sample gets a **code**: the bin its projection falls in. With the
